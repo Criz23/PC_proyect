@@ -17,20 +17,6 @@
 #define FSL_COMPONENT_ID "platform.drivers.clock"
 #endif
 
-/* Macro definition remap workaround. */
-#if (defined(MCG_C2_EREFS_MASK) && !(defined(MCG_C2_EREFS0_MASK)))
-#define MCG_C2_EREFS0_MASK MCG_C2_EREFS_MASK
-#endif
-#if (defined(MCG_C2_HGO_MASK) && !(defined(MCG_C2_HGO0_MASK)))
-#define MCG_C2_HGO0_MASK MCG_C2_HGO_MASK
-#endif
-#if (defined(MCG_C2_RANGE_MASK) && !(defined(MCG_C2_RANGE0_MASK)))
-#define MCG_C2_RANGE0_MASK MCG_C2_RANGE_MASK
-#endif
-#if (defined(MCG_C6_CME_MASK) && !(defined(MCG_C6_CME0_MASK)))
-#define MCG_C6_CME0_MASK MCG_C6_CME_MASK
-#endif
-
 /* PLL fixed multiplier when there is not PRDIV and VDIV. */
 #define PLL_FIXED_MULT (375U)
 /* Max frequency of the reference clock used for internal clock trim. */
@@ -189,8 +175,6 @@ static void CLOCK_FllStableDelay(void);
 /*******************************************************************************
  * Code
  ******************************************************************************/
-
-#ifndef MCG_USER_CONFIG_FLL_STABLE_DELAY_EN
 static void CLOCK_FllStableDelay(void)
 {
     /*
@@ -203,13 +187,6 @@ static void CLOCK_FllStableDelay(void)
         __NOP();
     }
 }
-#else  /* With MCG_USER_CONFIG_FLL_STABLE_DELAY_EN defined. */
-/* Once user defines the MCG_USER_CONFIG_FLL_STABLE_DELAY_EN to use their own delay function, he has to
- * create his own CLOCK_FllStableDelay() function in application code. Since the clock functions in this
- * file would call the CLOCK_FllStableDelay() regardless how it is defined.
- */
-extern void CLOCK_FllStableDelay(void);
-#endif /* MCG_USER_CONFIG_FLL_STABLE_DELAY_EN */
 
 static uint32_t CLOCK_GetMcgExtClkFreq(void)
 {
@@ -1046,14 +1023,6 @@ status_t CLOCK_SetExternalRefClkConfig(mcg_oscsel_t oscsel)
     bool needDelay;
     uint32_t i;
 
-#if (defined(MCG_CONFIG_CHECK_PARAM) && MCG_CONFIG_CHECK_PARAM)
-    /* If change MCG_C7[OSCSEL] and external reference clock is system clock source, return error. */
-    if ((MCG_C7_OSCSEL_VAL != oscsel) && (!(MCG->S & MCG_S_IREFST_MASK)))
-    {
-        return kStatus_MCG_SourceUsed;
-    }
-#endif /* MCG_CONFIG_CHECK_PARAM */
-
     if (MCG_C7_OSCSEL_VAL != (uint8_t)oscsel)
     {
         /* If change OSCSEL, need to delay, ERR009878. */
@@ -1804,14 +1773,6 @@ status_t CLOCK_SetFeiMode(mcg_dmx32_t dmx32, mcg_drs_t drs, void (*fllStableDela
 {
     uint8_t mcg_c4;
     bool change_drs = false;
-
-#if (defined(MCG_CONFIG_CHECK_PARAM) && MCG_CONFIG_CHECK_PARAM)
-    mcg_mode_t mode = CLOCK_GetMode();
-    if (!((kMCG_ModeFEI == mode) || (kMCG_ModeFBI == mode) || (kMCG_ModeFBE == mode) || (kMCG_ModeFEE == mode)))
-    {
-        return kStatus_MCG_ModeUnreachable;
-    }
-#endif
     mcg_c4 = MCG->C4;
 
     /*
@@ -1880,14 +1841,6 @@ status_t CLOCK_SetFeeMode(uint8_t frdiv, mcg_dmx32_t dmx32, mcg_drs_t drs, void 
 {
     uint8_t mcg_c4;
     bool change_drs = false;
-
-#if (defined(MCG_CONFIG_CHECK_PARAM) && MCG_CONFIG_CHECK_PARAM)
-    mcg_mode_t mode = CLOCK_GetMode();
-    if (!((kMCG_ModeFEE == mode) || (kMCG_ModeFBI == mode) || (kMCG_ModeFBE == mode) || (kMCG_ModeFEI == mode)))
-    {
-        return kStatus_MCG_ModeUnreachable;
-    }
-#endif
     mcg_c4 = MCG->C4;
 
     /*
@@ -1975,18 +1928,6 @@ status_t CLOCK_SetFbiMode(mcg_dmx32_t dmx32, mcg_drs_t drs, void (*fllStableDela
 {
     uint8_t mcg_c4;
     bool change_drs = false;
-
-#if (defined(MCG_CONFIG_CHECK_PARAM) && MCG_CONFIG_CHECK_PARAM)
-    mcg_mode_t mode = CLOCK_GetMode();
-
-    if (!((kMCG_ModeFEE == mode) || (kMCG_ModeFBI == mode) || (kMCG_ModeFBE == mode) || (kMCG_ModeFEI == mode) ||
-          (kMCG_ModeBLPI == mode)))
-
-    {
-        return kStatus_MCG_ModeUnreachable;
-    }
-#endif
-
     mcg_c4 = MCG->C4;
 
     MCG->C2 &= ~(uint8_t)MCG_C2_LP_MASK; /* Disable lowpower. */
@@ -2055,15 +1996,6 @@ status_t CLOCK_SetFbeMode(uint8_t frdiv, mcg_dmx32_t dmx32, mcg_drs_t drs, void 
 {
     uint8_t mcg_c4;
     bool change_drs = false;
-
-#if (defined(MCG_CONFIG_CHECK_PARAM) && MCG_CONFIG_CHECK_PARAM)
-    mcg_mode_t mode = CLOCK_GetMode();
-    if (!((kMCG_ModeFEE == mode) || (kMCG_ModeFBI == mode) || (kMCG_ModeFBE == mode) || (kMCG_ModeFEI == mode) ||
-          (kMCG_ModePBE == mode) || (kMCG_ModeBLPE == mode)))
-    {
-        return kStatus_MCG_ModeUnreachable;
-    }
-#endif
 
     /* Change to FLL mode. */
     MCG->C6 &= ~(uint8_t)MCG_C6_PLLS_MASK;
@@ -2146,13 +2078,6 @@ status_t CLOCK_SetFbeMode(uint8_t frdiv, mcg_dmx32_t dmx32, mcg_drs_t drs, void 
  */
 status_t CLOCK_SetBlpiMode(void)
 {
-#if (defined(MCG_CONFIG_CHECK_PARAM) && MCG_CONFIG_CHECK_PARAM)
-    if (MCG_S_CLKST_VAL != (uint8_t)kMCG_ClkOutStatInt)
-    {
-        return kStatus_MCG_ModeUnreachable;
-    }
-#endif /* MCG_CONFIG_CHECK_PARAM */
-
     /* Set LP. */
     MCG->C2 |= MCG_C2_LP_MASK;
 
@@ -2170,14 +2095,7 @@ status_t CLOCK_SetBlpiMode(void)
  */
 status_t CLOCK_SetBlpeMode(void)
 {
-#if (defined(MCG_CONFIG_CHECK_PARAM) && MCG_CONFIG_CHECK_PARAM)
-    if (MCG_S_CLKST_VAL != (uint8_t)kMCG_ClkOutStatExt)
-    {
-        return kStatus_MCG_ModeUnreachable;
-    }
-#endif
-
-    /* Set LP bit to enter BLPE mode. */
+	/* Set LP bit to enter BLPE mode. */
     MCG->C2 |= MCG_C2_LP_MASK;
 
     return kStatus_Success;
@@ -2267,14 +2185,6 @@ status_t CLOCK_SetPbeMode(mcg_pll_clk_select_t pllcs, mcg_pll_config_t const *co
  */
 status_t CLOCK_SetPeeMode(void)
 {
-#if (defined(MCG_CONFIG_CHECK_PARAM) && MCG_CONFIG_CHECK_PARAM)
-    mcg_mode_t mode = CLOCK_GetMode();
-    if (kMCG_ModePBE != mode)
-    {
-        return kStatus_MCG_ModeUnreachable;
-    }
-#endif
-
     /* Change to use PLL/FLL output clock first. */
     MCG->C1 = (uint8_t)((MCG->C1 & ~MCG_C1_CLKS_MASK) | MCG_C1_CLKS(kMCG_ClkOutSrcOut));
 
@@ -2304,13 +2214,6 @@ status_t CLOCK_SetPeeMode(void)
  */
 status_t CLOCK_ExternalModeToFbeModeQuick(void)
 {
-#if (defined(MCG_CONFIG_CHECK_PARAM) && MCG_CONFIG_CHECK_PARAM)
-    if ((MCG->S & MCG_S_IREFST_MASK) != 0U)
-    {
-        return kStatus_MCG_ModeInvalid;
-    }
-#endif /* MCG_CONFIG_CHECK_PARAM */
-
     /* Disable low power */
     MCG->C2 &= (uint8_t)(~MCG_C2_LP_MASK);
 
@@ -2346,13 +2249,6 @@ status_t CLOCK_ExternalModeToFbeModeQuick(void)
  */
 status_t CLOCK_InternalModeToFbiModeQuick(void)
 {
-#if (defined(MCG_CONFIG_CHECK_PARAM) && MCG_CONFIG_CHECK_PARAM)
-    if ((MCG->S & MCG_S_IREFST_MASK) == 0U)
-    {
-        return kStatus_MCG_ModeInvalid;
-    }
-#endif
-
     /* Disable low power */
     MCG->C2 &= ~(uint8_t)MCG_C2_LP_MASK;
 

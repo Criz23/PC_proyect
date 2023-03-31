@@ -14,30 +14,9 @@
 #pragma GCC push_options
 #pragma GCC optimize ("Og")
 #endif // (DEBUG)
-
-#if defined (__cplusplus)
-#ifdef __REDLIB__
-#error Redlib does not support C++
-#else
-//*****************************************************************************
-//
-// The entry point for the C++ library startup
-//
-//*****************************************************************************
-extern "C" {
-    extern void __libc_init_array(void);
-}
-#endif
-#endif
-
 #define WEAK __attribute__ ((weak))
 #define WEAK_AV __attribute__ ((weak, section(".after_vectors")))
 #define ALIAS(f) __attribute__ ((weak, alias (#f)))
-
-//*****************************************************************************
-#if defined (__cplusplus)
-extern "C" {
-#endif
 
 //*****************************************************************************
 // Flash Configuration block : 16-byte flash configuration field that stores
@@ -296,11 +275,6 @@ extern int main(void);
 // External declaration for the pointer to the stack top from the Linker Script
 //*****************************************************************************
 extern void _vStackTop(void);
-//*****************************************************************************
-#if defined (__cplusplus)
-} // extern "C"
-#endif
-//*****************************************************************************
 // The vector table.
 // This relies on the linker script to place at correct location in memory.
 //*****************************************************************************
@@ -481,20 +455,8 @@ void ResetISR(void) {
     // Disable interrupts
     __asm volatile ("cpsid i");
 
-
-#if defined (__USE_CMSIS)
 // If __USE_CMSIS defined, then call CMSIS SystemInit code
     SystemInit();
-
-#else
-    // Disable Watchdog
-    //  Write 0xC520 to watchdog unlock register
-    *((volatile unsigned short *)0x4005200E) = 0xC520;
-    //  Followed by 0xD928 to complete the unlock
-    *((volatile unsigned short *)0x4005200E) = 0xD928;
-    // Now disable watchdog via STCTRLH register
-    *((volatile unsigned short *)0x40052000) = 0x01D2u;
-#endif // (__USE_CMSIS)
 
     //
     // Copy the data sections from flash to SRAM.
@@ -521,56 +483,11 @@ void ResetISR(void) {
         bss_init(ExeAddr, SectionLen);
     }
 
-#if !defined (__USE_CMSIS)
-// Assume that if __USE_CMSIS defined, then CMSIS SystemInit code
-// will enable the FPU
-#if defined (__VFP_FP__) && !defined (__SOFTFP__)
-    //
-    // Code to enable the Cortex-M4 FPU only included
-    // if appropriate build options have been selected.
-    // Code taken from Section 7.1, Cortex-M4 TRM (DDI0439C)
-    //
-    // Read CPACR (located at address 0xE000ED88)
-    // Set bits 20-23 to enable CP10 and CP11 coprocessors
-    // Write back the modified value to the CPACR
-    asm volatile ("LDR.W R0, =0xE000ED88\n\t"
-                  "LDR R1, [R0]\n\t"
-                  "ORR R1, R1, #(0xF << 20)\n\t"
-                  "STR R1, [R0]");
-#endif // (__VFP_FP__) && !(__SOFTFP__)
-#endif // (__USE_CMSIS)
-
-
-#if !defined (__USE_CMSIS)
-// Assume that if __USE_CMSIS defined, then CMSIS SystemInit code
-// will setup the VTOR register
-
-    // Check to see if we are running the code from a non-zero
-    // address (eg RAM, external flash), in which case we need
-    // to modify the VTOR register to tell the CPU that the
-    // vector table is located at a non-0x0 address.
-    unsigned int * pSCB_VTOR = (unsigned int *) 0xE000ED08;
-    if ((unsigned int *)g_pfnVectors!=(unsigned int *) 0x00000000) {
-        *pSCB_VTOR = (unsigned int)g_pfnVectors;
-    }
-#endif // (__USE_CMSIS)
-#if defined (__cplusplus)
-    //
-    // Call C++ library initialisation
-    //
-    __libc_init_array();
-#endif
-
     // Reenable interrupts
     __asm volatile ("cpsie i");
 
-#if defined (__REDLIB__)
     // Call the Redlib library, which in turn calls main()
     __main();
-#else
-    main();
-#endif
-
     //
     // main() shouldn't return, but if it does, we'll just enter an infinite loop
     //
