@@ -14,9 +14,6 @@
  * CMSIS pack RTE generates "RTC_Components.h" which contains the statements
  * of the related <RTE_Components_h> element for all selected software components.
  */
-#ifdef _RTE_
-#include "RTE_Components.h"
-#endif
 
 /*!
  * @addtogroup ksdk_common
@@ -58,13 +55,6 @@
  *
  * @{
  */
-
-/* clang-format off */
-#if ((defined(__ARM_ARCH_7M__     ) && (__ARM_ARCH_7M__      == 1)) || \
-     (defined(__ARM_ARCH_7EM__    ) && (__ARM_ARCH_7EM__     == 1)) || \
-     (defined(__ARM_ARCH_8M_MAIN__) && (__ARM_ARCH_8M_MAIN__ == 1)) || \
-     (defined(__ARM_ARCH_8M_BASE__) && (__ARM_ARCH_8M_BASE__ == 1)))
-/* clang-format on */
 
 /* If the LDREX and STREX are supported, use them. */
 #define _SDK_ATOMIC_LOCAL_OPS_1BYTE(addr, val, ops) \
@@ -246,54 +236,6 @@ static inline void _SDK_AtomicLocalClearAndSet4Byte(volatile uint32_t *addr, uin
          ((2UL == sizeof(*(addr))) ?                                                                                                       \
               _SDK_AtomicLocalClearAndSet2Byte((volatile uint16_t *)(volatile void *)(addr), (uint16_t)(clearBits), (uint16_t)(setBits)) : \
               _SDK_AtomicLocalClearAndSet4Byte((volatile uint32_t *)(volatile void *)(addr), (uint32_t)(clearBits), (uint32_t)(setBits))))
-#else
-
-#define SDK_ATOMIC_LOCAL_ADD(addr, val)      \
-    do                                       \
-    {                                        \
-        uint32_t s_atomicOldInt;             \
-        s_atomicOldInt = DisableGlobalIRQ(); \
-        *(addr) += (val);                    \
-        EnableGlobalIRQ(s_atomicOldInt);     \
-    } while (0)
-
-#define SDK_ATOMIC_LOCAL_SET(addr, bits)     \
-    do                                       \
-    {                                        \
-        uint32_t s_atomicOldInt;             \
-        s_atomicOldInt = DisableGlobalIRQ(); \
-        *(addr) |= (bits);                   \
-        EnableGlobalIRQ(s_atomicOldInt);     \
-    } while (0)
-
-#define SDK_ATOMIC_LOCAL_CLEAR(addr, bits)   \
-    do                                       \
-    {                                        \
-        uint32_t s_atomicOldInt;             \
-        s_atomicOldInt = DisableGlobalIRQ(); \
-        *(addr) &= ~(bits);                  \
-        EnableGlobalIRQ(s_atomicOldInt);     \
-    } while (0)
-
-#define SDK_ATOMIC_LOCAL_TOGGLE(addr, bits)  \
-    do                                       \
-    {                                        \
-        uint32_t s_atomicOldInt;             \
-        s_atomicOldInt = DisableGlobalIRQ(); \
-        *(addr) ^= (bits);                   \
-        EnableGlobalIRQ(s_atomicOldInt);     \
-    } while (0)
-
-#define SDK_ATOMIC_LOCAL_CLEAR_AND_SET(addr, clearBits, setBits) \
-    do                                                           \
-    {                                                            \
-        uint32_t s_atomicOldInt;                                 \
-        s_atomicOldInt = DisableGlobalIRQ();                     \
-        *(addr)        = (*(addr) & ~(clearBits)) | (setBits);   \
-        EnableGlobalIRQ(s_atomicOldInt);                         \
-    } while (0)
-
-#endif
 /* @} */
 
 /*! @name Timer utilities */
@@ -318,44 +260,19 @@ static inline void _SDK_AtomicLocalClearAndSet4Byte(volatile uint32_t *addr, uin
  * the peripheral interrupt flags may be still set after exiting ISR, this results to
  * the same error similar with errata 83869.
  */
-#if (defined __CORTEX_M) && ((__CORTEX_M == 4U) || (__CORTEX_M == 7U))
 #define SDK_ISR_EXIT_BARRIER __DSB()
-#else
-#define SDK_ISR_EXIT_BARRIER
-#endif
 
 /* @} */
 
 /*! @name Alignment variable definition macros */
 /* @{ */
-#if (defined(__ICCARM__))
-/*
- * Workaround to disable MISRA C message suppress warnings for IAR compiler.
- * http:/ /supp.iar.com/Support/?note=24725
- */
-_Pragma("diag_suppress=Pm120")
-#define SDK_PRAGMA(x) _Pragma(#x)
-    _Pragma("diag_error=Pm120")
-/*! Macro to define a variable with alignbytes alignment */
-#define SDK_ALIGN(var, alignbytes) SDK_PRAGMA(data_alignment = alignbytes) var
-#elif defined(__CC_ARM) || defined(__ARMCC_VERSION)
-/*! Macro to define a variable with alignbytes alignment */
-#define SDK_ALIGN(var, alignbytes) __attribute__((aligned(alignbytes))) var
-#elif defined(__GNUC__)
 /*! Macro to define a variable with alignbytes alignment */
 #define SDK_ALIGN(var, alignbytes) var __attribute__((aligned(alignbytes)))
-#else
-#error Toolchain not supported
-#endif
-
 /*! Macro to define a variable with L1 d-cache line size alignment */
 #if defined(FSL_FEATURE_L1DCACHE_LINESIZE_BYTE)
 #define SDK_L1DCACHE_ALIGN(var) SDK_ALIGN(var, FSL_FEATURE_L1DCACHE_LINESIZE_BYTE)
 #endif
 /*! Macro to define a variable with L2 cache line size alignment */
-#if defined(FSL_FEATURE_L2CACHE_LINESIZE_BYTE)
-#define SDK_L2CACHE_ALIGN(var) SDK_ALIGN(var, FSL_FEATURE_L2CACHE_LINESIZE_BYTE)
-#endif
 
 /*! Macro to change a value to a given size aligned value */
 #define SDK_SIZEALIGN(var, alignbytes) \
@@ -404,17 +321,8 @@ _Pragma("diag_suppress=Pm120")
 #define AT_NONCACHEABLE_SECTION(var) __attribute__((section("NonCacheable,\"aw\",%nobits @"))) var
 #define AT_NONCACHEABLE_SECTION_ALIGN(var, alignbytes) \
     __attribute__((section("NonCacheable,\"aw\",%nobits @"))) var __attribute__((aligned(alignbytes)))
-#else
-#error Toolchain not supported.
+
 #endif
-
-#else
-
-#define AT_NONCACHEABLE_SECTION(var)                        var
-#define AT_NONCACHEABLE_SECTION_ALIGN(var, alignbytes)      SDK_ALIGN(var, alignbytes)
-#define AT_NONCACHEABLE_SECTION_INIT(var)                   var
-#define AT_NONCACHEABLE_SECTION_ALIGN_INIT(var, alignbytes) SDK_ALIGN(var, alignbytes)
-
 #endif
 
 /* @} */
