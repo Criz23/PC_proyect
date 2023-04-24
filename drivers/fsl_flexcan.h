@@ -773,7 +773,7 @@ typedef struct _flexcan_config
                                              transceiver delay measurement plus the enhanced TDC offset. */
 #endif
     flexcan_timing_config_t timingConfig; /* Protocol timing . */
-} flexcan_config_t;
+} Can_ConfigType;
 
 /*!
  * @brief FlexCAN Receive Message Buffer configuration structure
@@ -1073,10 +1073,10 @@ bool FLEXCAN_CalculateImprovedTimingValues(CAN_Type *base,
  * @brief Initializes a FlexCAN instance.
  *
  * This function initializes the FlexCAN module with user-defined settings.
- * This example shows how to set up the flexcan_config_t parameters and how
+ * This example shows how to set up the Can_ConfigType parameters and how
  * to call the FLEXCAN_Init function by passing in these parameters.
  *  @code
- *   flexcan_config_t flexcanConfig;
+ *   Can_ConfigType flexcanConfig;
  *   flexcanConfig.clkSrc               = kFLEXCAN_ClkSrc0;
  *   flexcanConfig.bitRate              = 1000000U;
  *   flexcanConfig.maxMbNum             = 16;
@@ -1094,7 +1094,7 @@ bool FLEXCAN_CalculateImprovedTimingValues(CAN_Type *base,
  * @param pConfig Pointer to the user-defined configuration structure.
  * @param sourceClock_Hz FlexCAN Protocol Engine clock source frequency in Hz.
  */
-void FLEXCAN_Init(CAN_Type *base, const flexcan_config_t *pConfig, uint32_t sourceClock_Hz);
+void FLEXCAN_Init(CAN_Type *base, const Can_ConfigType *pConfig, uint32_t sourceClock_Hz);
 
 #if (defined(FSL_FEATURE_FLEXCAN_HAS_FLEXIBLE_DATA_RATE) && FSL_FEATURE_FLEXCAN_HAS_FLEXIBLE_DATA_RATE)
 /*!
@@ -1122,10 +1122,10 @@ bool FLEXCAN_FDCalculateImprovedTimingValues(CAN_Type *base,
  * @brief Initializes a FlexCAN instance.
  *
  * This function initializes the FlexCAN module with user-defined settings.
- * This example shows how to set up the flexcan_config_t parameters and how
+ * This example shows how to set up the Can_ConfigType parameters and how
  * to call the FLEXCAN_FDInit function by passing in these parameters.
  *  @code
- *   flexcan_config_t flexcanConfig;
+ *   Can_ConfigType flexcanConfig;
  *   flexcanConfig.clkSrc               = kFLEXCAN_ClkSrc0;
  *   flexcanConfig.bitRate              = 1000000U;
  *   flexcanConfig.bitRateFD            = 2000000U;
@@ -1148,7 +1148,7 @@ bool FLEXCAN_FDCalculateImprovedTimingValues(CAN_Type *base,
  * @param brs True if bit rate switch is enabled in FD mode.
  */
 void FLEXCAN_FDInit(
-    CAN_Type *base, const flexcan_config_t *pConfig, uint32_t sourceClock_Hz, flexcan_mb_size_t dataSize, bool brs);
+    CAN_Type *base, const Can_ConfigType *pConfig, uint32_t sourceClock_Hz, flexcan_mb_size_t dataSize, bool brs);
 #endif
 
 /*!
@@ -1182,7 +1182,7 @@ void FLEXCAN_Deinit(CAN_Type *base);
  *
  * @param pConfig Pointer to the FlexCAN configuration structure.
  */
-void FLEXCAN_GetDefaultConfig(flexcan_config_t *pConfig);
+void FLEXCAN_GetDefaultConfig(Can_ConfigType *pConfig);
 
 /* @} */
 

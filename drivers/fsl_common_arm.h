@@ -289,29 +289,6 @@ static inline void _SDK_AtomicLocalClearAndSet4Byte(volatile uint32_t *addr, uin
 
 #if ((!(defined(FSL_FEATURE_HAS_NO_NONCACHEABLE_SECTION) && FSL_FEATURE_HAS_NO_NONCACHEABLE_SECTION)) && \
      defined(FSL_FEATURE_L1ICACHE_LINESIZE_BYTE))
-
-#if (defined(__ICCARM__))
-#define AT_NONCACHEABLE_SECTION(var)                   var @"NonCacheable"
-#define AT_NONCACHEABLE_SECTION_ALIGN(var, alignbytes) SDK_PRAGMA(data_alignment = alignbytes) var @"NonCacheable"
-#define AT_NONCACHEABLE_SECTION_INIT(var)              var @"NonCacheable.init"
-#define AT_NONCACHEABLE_SECTION_ALIGN_INIT(var, alignbytes) \
-    SDK_PRAGMA(data_alignment = alignbytes) var @"NonCacheable.init"
-
-#elif (defined(__CC_ARM) || defined(__ARMCC_VERSION))
-#define AT_NONCACHEABLE_SECTION_INIT(var) __attribute__((section("NonCacheable.init"))) var
-#define AT_NONCACHEABLE_SECTION_ALIGN_INIT(var, alignbytes) \
-    __attribute__((section("NonCacheable.init"))) __attribute__((aligned(alignbytes))) var
-#if (defined(__CC_ARM))
-#define AT_NONCACHEABLE_SECTION(var) __attribute__((section("NonCacheable"), zero_init)) var
-#define AT_NONCACHEABLE_SECTION_ALIGN(var, alignbytes) \
-    __attribute__((section("NonCacheable"), zero_init)) __attribute__((aligned(alignbytes))) var
-#else
-#define AT_NONCACHEABLE_SECTION(var) __attribute__((section(".bss.NonCacheable"))) var
-#define AT_NONCACHEABLE_SECTION_ALIGN(var, alignbytes) \
-    __attribute__((section(".bss.NonCacheable"))) __attribute__((aligned(alignbytes))) var
-#endif
-
-#elif (defined(__GNUC__))
 /* For GCC, when the non-cacheable section is required, please define "__STARTUP_INITIALIZE_NONCACHEDATA"
  * in your projects to make sure the non-cacheable section variables will be initialized in system startup.
  */
@@ -323,7 +300,6 @@ static inline void _SDK_AtomicLocalClearAndSet4Byte(volatile uint32_t *addr, uin
     __attribute__((section("NonCacheable,\"aw\",%nobits @"))) var __attribute__((aligned(alignbytes)))
 
 #endif
-#endif
 
 /* @} */
 
@@ -331,40 +307,12 @@ static inline void _SDK_AtomicLocalClearAndSet4Byte(volatile uint32_t *addr, uin
  * @name Time sensitive region
  * @{
  */
-#if (defined(__ICCARM__))
-#define AT_QUICKACCESS_SECTION_CODE(func) func @"CodeQuickAccess"
-#define AT_QUICKACCESS_SECTION_DATA(var)  var @"DataQuickAccess"
-#define AT_QUICKACCESS_SECTION_DATA_ALIGN(var, alignbytes) \
-    SDK_PRAGMA(data_alignment = alignbytes) var @"DataQuickAccess"
-#elif (defined(__CC_ARM) || defined(__ARMCC_VERSION))
-#define AT_QUICKACCESS_SECTION_CODE(func) __attribute__((section("CodeQuickAccess"), __noinline__)) func
-#define AT_QUICKACCESS_SECTION_DATA(var)  __attribute__((section("DataQuickAccess"))) var
-#define AT_QUICKACCESS_SECTION_DATA_ALIGN(var, alignbytes) \
-    __attribute__((section("DataQuickAccess"))) __attribute__((aligned(alignbytes))) var
-#elif (defined(__GNUC__))
 #define AT_QUICKACCESS_SECTION_CODE(func) __attribute__((section("CodeQuickAccess"), __noinline__)) func
 #define AT_QUICKACCESS_SECTION_DATA(var)  __attribute__((section("DataQuickAccess"))) var
 #define AT_QUICKACCESS_SECTION_DATA_ALIGN(var, alignbytes) \
     __attribute__((section("DataQuickAccess"))) var __attribute__((aligned(alignbytes)))
-#else
-#error Toolchain not supported.
-#endif /* defined(__ICCARM__) */
-
 /*! @name Ram Function */
-#if (defined(__ICCARM__))
-#define RAMFUNCTION_SECTION_CODE(func) func @"RamFunction"
-#elif (defined(__CC_ARM) || defined(__ARMCC_VERSION))
 #define RAMFUNCTION_SECTION_CODE(func) __attribute__((section("RamFunction"))) func
-#elif (defined(__GNUC__))
-#define RAMFUNCTION_SECTION_CODE(func) __attribute__((section("RamFunction"))) func
-#else
-#error Toolchain not supported.
-#endif /* defined(__ICCARM__) */
-/* @} */
-
-#if defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
-        void DefaultISR(void);
-#endif
 
 /*
  * The fsl_clock.h is included here because it needs MAKE_VERSION/MAKE_STATUS/status_t
@@ -375,19 +323,6 @@ static inline void _SDK_AtomicLocalClearAndSet4Byte(volatile uint32_t *addr, uin
 /*
  * Chip level peripheral reset API, for MCUs that implement peripheral reset control external to a peripheral
  */
-#if ((defined(FSL_FEATURE_SOC_SYSCON_COUNT) && (FSL_FEATURE_SOC_SYSCON_COUNT > 0)) || \
-     (defined(FSL_FEATURE_SOC_ASYNC_SYSCON_COUNT) && (FSL_FEATURE_SOC_ASYNC_SYSCON_COUNT > 0)))
-#include "fsl_reset.h"
-#endif
-
-/*******************************************************************************
- * API
- ******************************************************************************/
-
-#if defined(__cplusplus)
-extern "C" {
-#endif /* __cplusplus*/
-
 /*!
  * @brief Enable specific interrupt.
  *
@@ -412,21 +347,9 @@ static inline status_t EnableIRQ(IRQn_Type interrupt)
     {
         status = kStatus_Fail;
     }
-
-#if defined(FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS) && (FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS > 0)
-    else if ((int32_t)interrupt >= (int32_t)FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS)
-    {
-        status = kStatus_Fail;
-    }
-#endif
-
     else
     {
-#if defined(__GIC_PRIO_BITS)
-        GIC_EnableIRQ(interrupt);
-#else
         NVIC_EnableIRQ(interrupt);
-#endif
     }
 
     return status;
@@ -456,21 +379,9 @@ static inline status_t DisableIRQ(IRQn_Type interrupt)
     {
         status = kStatus_Fail;
     }
-
-#if defined(FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS) && (FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS > 0)
-    else if ((int32_t)interrupt >= (int32_t)FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS)
-    {
-        status = kStatus_Fail;
-    }
-#endif
-
     else
     {
-#if defined(__GIC_PRIO_BITS)
-        GIC_DisableIRQ(interrupt);
-#else
         NVIC_DisableIRQ(interrupt);
-#endif
     }
 
     return status;
@@ -486,19 +397,11 @@ static inline status_t DisableIRQ(IRQn_Type interrupt)
  */
 static inline uint32_t DisableGlobalIRQ(void)
 {
-#if defined(CPSR_I_Msk)
-    uint32_t cpsr = __get_CPSR() & CPSR_I_Msk;
-
-    __disable_irq();
-
-    return cpsr;
-#else
     uint32_t regPrimask = __get_PRIMASK();
 
     __disable_irq();
 
     return regPrimask;
-#endif
 }
 
 /*!
@@ -513,67 +416,6 @@ static inline uint32_t DisableGlobalIRQ(void)
  */
 static inline void EnableGlobalIRQ(uint32_t primask)
 {
-#if defined(CPSR_I_Msk)
-    __set_CPSR((__get_CPSR() & ~CPSR_I_Msk) | primask);
-#else
     __set_PRIMASK(primask);
-#endif
 }
-
-#if defined(ENABLE_RAM_VECTOR_TABLE)
-/*!
- * @brief install IRQ handler
- *
- * @param irq IRQ number
- * @param irqHandler IRQ handler address
- * @return The old IRQ handler address
- */
-uint32_t InstallIRQHandler(IRQn_Type irq, uint32_t irqHandler);
-#endif /* ENABLE_RAM_VECTOR_TABLE. */
-
-#if (defined(FSL_FEATURE_SOC_SYSCON_COUNT) && (FSL_FEATURE_SOC_SYSCON_COUNT > 0))
-
-/*
- * When FSL_FEATURE_POWERLIB_EXTEND is defined to non-zero value,
- * powerlib should be used instead of these functions.
- */
-#if !(defined(FSL_FEATURE_POWERLIB_EXTEND) && (FSL_FEATURE_POWERLIB_EXTEND != 0))
-/*!
- * @brief Enable specific interrupt for wake-up from deep-sleep mode.
- *
- * Enable the interrupt for wake-up from deep sleep mode.
- * Some interrupts are typically used in sleep mode only and will not occur during
- * deep-sleep mode because relevant clocks are stopped. However, it is possible to enable
- * those clocks (significantly increasing power consumption in the reduced power mode),
- * making these wake-ups possible.
- *
- * @note This function also enables the interrupt in the NVIC (EnableIRQ() is called internaly).
- *
- * @param interrupt The IRQ number.
- */
-void EnableDeepSleepIRQ(IRQn_Type interrupt);
-
-/*!
- * @brief Disable specific interrupt for wake-up from deep-sleep mode.
- *
- * Disable the interrupt for wake-up from deep sleep mode.
- * Some interrupts are typically used in sleep mode only and will not occur during
- * deep-sleep mode because relevant clocks are stopped. However, it is possible to enable
- * those clocks (significantly increasing power consumption in the reduced power mode),
- * making these wake-ups possible.
- *
- * @note This function also disables the interrupt in the NVIC (DisableIRQ() is called internaly).
- *
- * @param interrupt The IRQ number.
- */
-void DisableDeepSleepIRQ(IRQn_Type interrupt);
-#endif /* FSL_FEATURE_POWERLIB_EXTEND */
-#endif /* FSL_FEATURE_SOC_SYSCON_COUNT */
-
-#if defined(__cplusplus)
-}
-#endif /* __cplusplus*/
-
-/*! @} */
-
 #endif /* _FSL_COMMON_ARM_H_ */

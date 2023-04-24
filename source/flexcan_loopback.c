@@ -59,7 +59,7 @@ void EXAMPLE_FLEXCAN_IRQHandler(void)
  */
 int main(void)
 {
-    flexcan_config_t flexcanConfig;
+    Can_ConfigType flexcanConfig;
     flexcan_rx_mb_config_t mbConfig;
     uint32_t flag = 1U;
 

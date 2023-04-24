@@ -877,10 +877,10 @@ static void FLEXCAN_SetFDBitRate(CAN_Type *base,
  * brief Initializes a FlexCAN instance.
  *
  * This function initializes the FlexCAN module with user-defined settings.
- * This example shows how to set up the flexcan_config_t parameters and how
+ * This example shows how to set up the Can_ConfigType parameters and how
  * to call the FLEXCAN_Init function by passing in these parameters.
  *  code
- *   flexcan_config_t flexcanConfig;
+ *   Can_ConfigType flexcanConfig;
  *   flexcanConfig.clkSrc               = kFLEXCAN_ClkSrc0;
  *   flexcanConfig.bitRate              = 1000000U;
  *   flexcanConfig.maxMbNum             = 16;
@@ -898,7 +898,7 @@ static void FLEXCAN_SetFDBitRate(CAN_Type *base,
  * param pConfig Pointer to the user-defined configuration structure.
  * param sourceClock_Hz FlexCAN Protocol Engine clock source frequency in Hz.
  */
-void FLEXCAN_Init(CAN_Type *base, const flexcan_config_t *pConfig, uint32_t sourceClock_Hz)
+void FLEXCAN_Init(CAN_Type *base, const Can_ConfigType *pConfig, uint32_t sourceClock_Hz)
 {
     /* Assertion. */
     assert(NULL != pConfig);
@@ -1029,10 +1029,10 @@ void FLEXCAN_Init(CAN_Type *base, const flexcan_config_t *pConfig, uint32_t sour
  * brief Initializes a FlexCAN instance.
  *
  * This function initializes the FlexCAN module with user-defined settings.
- * This example shows how to set up the flexcan_config_t parameters and how
+ * This example shows how to set up the Can_ConfigType parameters and how
  * to call the FLEXCAN_FDInit function by passing in these parameters.
  *  code
- *   flexcan_config_t flexcanConfig;
+ *   Can_ConfigType flexcanConfig;
  *   flexcanConfig.clkSrc               = kFLEXCAN_ClkSrc0;
  *   flexcanConfig.bitRate              = 1000000U;
  *   flexcanConfig.bitRateFD            = 2000000U;
@@ -1055,7 +1055,7 @@ void FLEXCAN_Init(CAN_Type *base, const flexcan_config_t *pConfig, uint32_t sour
  * param brs True if bit rate switch is enabled in FD mode.
  */
 void FLEXCAN_FDInit(
-    CAN_Type *base, const flexcan_config_t *pConfig, uint32_t sourceClock_Hz, flexcan_mb_size_t dataSize, bool brs)
+    CAN_Type *base, const Can_ConfigType *pConfig, uint32_t sourceClock_Hz, flexcan_mb_size_t dataSize, bool brs)
 {
     assert((uint32_t)dataSize <= 3U);
     assert(((pConfig->bitRate < pConfig->bitRateFD) && brs) || ((pConfig->bitRate == pConfig->bitRateFD) && (!brs)));
@@ -1204,7 +1204,7 @@ void FLEXCAN_Deinit(CAN_Type *base)
  *
  * param pConfig Pointer to the FlexCAN configuration structure.
  */
-void FLEXCAN_GetDefaultConfig(flexcan_config_t *pConfig)
+void FLEXCAN_GetDefaultConfig(Can_ConfigType *pConfig)
 {
     /* Assertion. */
     assert(NULL != pConfig);
