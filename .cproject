@@ -286,7 +286,7 @@
 								<option id="com.crt.advproject.link.gcc.lto.710506427" superClass="com.crt.advproject.link.gcc.lto"/>
 								<option id="com.crt.advproject.link.gcc.lto.optmization.level.625972885" superClass="com.crt.advproject.link.gcc.lto.optmization.level"/>
 								<option id="com.crt.advproject.link.manage.1655137983" superClass="com.crt.advproject.link.manage" value="true" valueType="boolean"/>
-								<option id="com.crt.advproject.link.script.2088302622" superClass="com.crt.advproject.link.script" value="PC_proyect_Debug.ld" valueType="string"/>
+								<option id="com.crt.advproject.link.script.2088302622" superClass="com.crt.advproject.link.script" value="frdmk66f_flexcan_loopback_Debug.ld" valueType="string"/>
 								<option id="com.crt.advproject.link.scriptdir.2006853159" superClass="com.crt.advproject.link.scriptdir"/>
 								<option id="com.crt.advproject.link.crpenable.1631627326" superClass="com.crt.advproject.link.crpenable"/>
 								<option id="com.crt.advproject.link.flashconfigenable.439859378" superClass="com.crt.advproject.link.flashconfigenable" value="true" valueType="boolean"/>
@@ -613,7 +613,7 @@
 								<option id="com.crt.advproject.link.gcc.lto.optmization.level.1128893005" superClass="com.crt.advproject.link.gcc.lto.optmization.level"/>
 								<option id="com.crt.advproject.link.fpu.1672230726" superClass="com.crt.advproject.link.fpu" value="com.crt.advproject.link.fpu.fpv4.hard" valueType="enumerated"/>
 								<option id="com.crt.advproject.link.manage.488701391" superClass="com.crt.advproject.link.manage" value="true" valueType="boolean"/>
-								<option id="com.crt.advproject.link.script.1519725396" superClass="com.crt.advproject.link.script" value="PC_proyect_Release.ld" valueType="string"/>
+								<option id="com.crt.advproject.link.script.1519725396" superClass="com.crt.advproject.link.script" value="frdmk66f_flexcan_loopback_Release.ld" valueType="string"/>
 								<option id="com.crt.advproject.link.scriptdir.467471744" superClass="com.crt.advproject.link.scriptdir"/>
 								<option id="com.crt.advproject.link.crpenable.282085622" superClass="com.crt.advproject.link.crpenable"/>
 								<option id="com.crt.advproject.link.flashconfigenable.1220038933" superClass="com.crt.advproject.link.flashconfigenable" value="true" valueType="boolean"/>

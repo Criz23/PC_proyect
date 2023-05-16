@@ -8,7 +8,7 @@
 
 #include "fsl_debug_console.h"
 //#include "fsl_flexcan.h"
-#include "can.h"
+#include "Can.h"
 #include "pin_mux.h"
 #include "clock_config.h"
 #include "board.h"
