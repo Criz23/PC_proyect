@@ -233,13 +233,6 @@ typedef int32_t status_t;
 
 /*! @name UINT16_MAX/UINT32_MAX value */
 /* @{ */
-#if !defined(UINT16_MAX)
-#define UINT16_MAX ((uint16_t)-1)
-#endif
-
-#if !defined(UINT32_MAX)
-#define UINT32_MAX ((uint32_t)-1)
-#endif
 /* @} */
 
 /*! @name Suppress fallthrough warning macro */
@@ -251,19 +244,12 @@ typedef int32_t status_t;
 /* @{ */
 #if defined(__GNUC__) && !defined(__ARMCC_VERSION)
 #define SUPPRESS_FALL_THROUGH_WARNING() __attribute__((fallthrough))
-#else
-#define SUPPRESS_FALL_THROUGH_WARNING()
 #endif
 /* @} */
 
 /*******************************************************************************
  * API
  ******************************************************************************/
-
-#if defined(__cplusplus)
-extern "C" {
-#endif
-
 /*!
  * @brief Allocate memory with given alignment and aligned size.
  *
@@ -292,18 +278,7 @@ void SDK_Free(void *ptr);
  */
 void SDK_DelayAtLeastUs(uint32_t delayTime_us, uint32_t coreClock_Hz);
 
-#if defined(__cplusplus)
-}
-#endif
-
 /*! @} */
-
-#if (defined(__DSC__) && defined(__CW__))
-#include "fsl_common_dsc.h"
-#elif defined(__XCC__)
-#include "fsl_common_dsp.h"
-#else
 #include "fsl_common_arm.h"
-#endif
 
 #endif /* _FSL_COMMON_H_ */

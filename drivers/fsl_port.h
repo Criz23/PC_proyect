@@ -39,16 +39,6 @@ enum _port_pull
     kPORT_PullUp      = 3U, /*!< Internal pull-up resistor is enabled. */
 };
 #endif /* FSL_FEATURE_PORT_HAS_PULL_ENABLE */
-
-#if defined(FSL_FEATURE_PORT_PCR_HAS_PULL_VALUE) && FSL_FEATURE_PORT_PCR_HAS_PULL_VALUE
-/*! @brief Internal resistor pull value selection */
-enum _port_pull_value
-{
-    kPORT_LowPullResistor  = 0U, /*!< Low internal pull resistor value is selected. */
-    kPORT_HighPullResistor = 1U, /*!< High internal pull resistor value is selected. */
-};
-#endif /* FSL_FEATURE_PORT_PCR_HAS_PULL_VALUE */
-
 #if defined(FSL_FEATURE_PORT_HAS_SLEW_RATE) && FSL_FEATURE_PORT_HAS_SLEW_RATE
 /*! @brief Slew rate selection */
 enum _port_slew_rate
@@ -84,15 +74,6 @@ enum _port_drive_strength
     kPORT_HighDriveStrength = 1U, /*!< High-drive strength is configured. */
 };
 #endif /* FSL_FEATURE_PORT_HAS_DRIVE_STRENGTH */
-
-#if defined(FSL_FEATURE_PORT_HAS_DRIVE_STRENGTH1) && FSL_FEATURE_PORT_HAS_DRIVE_STRENGTH1
-/*! @brief Configures the drive strength1. */
-enum _port_drive_strength1
-{
-    kPORT_NormalDriveStrength = 0, /*!< Normal drive strength */
-    kPORT_DoubleDriveStrength = 1, /*!< Double drive strength */
-};
-#endif /* FSL_FEATURE_PORT_HAS_DRIVE_STRENGTH1 */
 
 #if defined(FSL_FEATURE_PORT_HAS_PIN_CONTROL_LOCK) && FSL_FEATURE_PORT_HAS_PIN_CONTROL_LOCK
 /*! @brief Unlock/lock the pin control register field[15:0] */
@@ -136,20 +117,11 @@ typedef enum _port_interrupt
     kPORT_DMAFallingEdge = 0x2U, /*!< DMA request on falling edge. */
     kPORT_DMAEitherEdge  = 0x3U, /*!< DMA request on either edge. */
 #endif
-#if defined(FSL_FEATURE_PORT_HAS_IRQC_FLAG) && FSL_FEATURE_PORT_HAS_IRQC_FLAG || defined(DOXYGEN_OUTPUT)
-    kPORT_FlagRisingEdge  = 0x05U, /*!< Flag sets on rising edge. */
-    kPORT_FlagFallingEdge = 0x06U, /*!< Flag sets on falling edge. */
-    kPORT_FlagEitherEdge  = 0x07U, /*!< Flag sets on either edge. */
-#endif
     kPORT_InterruptLogicZero   = 0x8U, /*!< Interrupt when logic zero. */
     kPORT_InterruptRisingEdge  = 0x9U, /*!< Interrupt on rising edge. */
     kPORT_InterruptFallingEdge = 0xAU, /*!< Interrupt on falling edge. */
     kPORT_InterruptEitherEdge  = 0xBU, /*!< Interrupt on either edge. */
     kPORT_InterruptLogicOne    = 0xCU, /*!< Interrupt when logic one. */
-#if defined(FSL_FEATURE_PORT_HAS_IRQC_TRIGGER) && FSL_FEATURE_PORT_HAS_IRQC_TRIGGER || defined(DOXYGEN_OUTPUT)
-    kPORT_ActiveHighTriggerOutputEnable = 0xDU, /*!< Enable active high-trigger output. */
-    kPORT_ActiveLowTriggerOutputEnable  = 0xEU, /*!< Enable active low-trigger output. */
-#endif
 } port_interrupt_t;
 #endif
 
@@ -175,19 +147,7 @@ typedef struct _port_pin_config
 {
 #if defined(FSL_FEATURE_PORT_HAS_PULL_ENABLE) && FSL_FEATURE_PORT_HAS_PULL_ENABLE
     uint16_t pullSelect : 2; /*!< No-pull/pull-down/pull-up select */
-#else
-    uint16_t : 2;
 #endif /* FSL_FEATURE_PORT_HAS_PULL_ENABLE */
-
-#if defined(FSL_FEATURE_PORT_PCR_HAS_PULL_VALUE) && FSL_FEATURE_PORT_PCR_HAS_PULL_VALUE
-    uint16_t pullValueSelect : 1; /*!< Pull value select */
-#endif                            /* FSL_FEATURE_PORT_PCR_HAS_PULL_VALUE */
-
-#if defined(FSL_FEATURE_PORT_HAS_SLEW_RATE) && FSL_FEATURE_PORT_HAS_SLEW_RATE
-    uint16_t slewRate : 1; /*!< Fast/slow slew rate Configure */
-#else
-    uint16_t : 1;
-#endif /* FSL_FEATURE_PORT_HAS_SLEW_RATE */
 
 #if !(defined(FSL_FEATURE_PORT_PCR_HAS_PULL_VALUE) && FSL_FEATURE_PORT_PCR_HAS_PULL_VALUE)
     uint16_t : 1;
@@ -195,42 +155,24 @@ typedef struct _port_pin_config
 
 #if defined(FSL_FEATURE_PORT_HAS_PASSIVE_FILTER) && FSL_FEATURE_PORT_HAS_PASSIVE_FILTER
     uint16_t passiveFilterEnable : 1; /*!< Passive filter enable/disable */
-#else
-    uint16_t : 1;
 #endif /* FSL_FEATURE_PORT_HAS_PASSIVE_FILTER */
 
 #if defined(FSL_FEATURE_PORT_HAS_OPEN_DRAIN) && FSL_FEATURE_PORT_HAS_OPEN_DRAIN
     uint16_t openDrainEnable : 1; /*!< Open drain enable/disable */
-#else
-    uint16_t : 1;
 #endif /* FSL_FEATURE_PORT_HAS_OPEN_DRAIN */
 
 #if defined(FSL_FEATURE_PORT_HAS_DRIVE_STRENGTH) && FSL_FEATURE_PORT_HAS_DRIVE_STRENGTH
     uint16_t driveStrength : 1; /*!< Fast/slow drive strength configure */
-#else
-    uint16_t : 1;
 #endif
-
-#if defined(FSL_FEATURE_PORT_HAS_DRIVE_STRENGTH1) && FSL_FEATURE_PORT_HAS_DRIVE_STRENGTH
-    uint16_t driveStrength1 : 1; /*!< Normal/Double drive strength enable/disable */
-#else
     uint16_t : 1;
-#endif /* FSL_FEATURE_PORT_HAS_DRIVE_STRENGTH1 */
 
 #if defined(FSL_FEATURE_PORT_PCR_MUX_WIDTH) && (FSL_FEATURE_PORT_PCR_MUX_WIDTH == 3)
     uint16_t mux : 3; /*!< Pin mux Configure */
     uint16_t : 4;
-#elif defined(FSL_FEATURE_PORT_PCR_MUX_WIDTH) && (FSL_FEATURE_PORT_PCR_MUX_WIDTH == 4)
-    uint16_t mux : 4; /*!< Pin mux Configure */
-    uint16_t : 3;
-#else
-    uint16_t : 7,
 #endif
 
 #if defined(FSL_FEATURE_PORT_HAS_PIN_CONTROL_LOCK) && FSL_FEATURE_PORT_HAS_PIN_CONTROL_LOCK
     uint16_t lockRegister : 1; /*!< Lock/unlock the PCR field[15:0] */
-#else
-    uint16_t : 1;
 #endif /* FSL_FEATURE_PORT_HAS_PIN_CONTROL_LOCK */
 } port_pin_config_t;
 #endif /* FSL_FEATURE_PORT_PCR_MUX_WIDTH */
@@ -238,11 +180,6 @@ typedef struct _port_pin_config
 /*******************************************************************************
  * API
  ******************************************************************************/
-
-#if defined(__cplusplus)
-extern "C" {
-#endif
-
 #if defined(FSL_FEATURE_PORT_PCR_MUX_WIDTH) && FSL_FEATURE_PORT_PCR_MUX_WIDTH
 /*! @name Configuration */
 /*@{*/
@@ -312,45 +249,6 @@ static inline void PORT_SetMultiplePinsConfig(PORT_Type *base, uint32_t mask, co
         base->GPCHR = (mask & 0xffff0000U) | pcrl;
     }
 }
-
-#if defined(FSL_FEATURE_PORT_HAS_MULTIPLE_IRQ_CONFIG) && FSL_FEATURE_PORT_HAS_MULTIPLE_IRQ_CONFIG
-/*!
- * @brief Sets the port interrupt configuration in PCR register for multiple pins.
- *
- * @param base   PORT peripheral base pointer.
- * @param mask   PORT pin number macro.
- * @param config  PORT pin interrupt configuration.
- *        - #kPORT_InterruptOrDMADisabled: Interrupt/DMA request disabled.
- *        - #kPORT_DMARisingEdge : DMA request on rising edge(if the DMA requests exit).
- *        - #kPORT_DMAFallingEdge: DMA request on falling edge(if the DMA requests exit).
- *        - #kPORT_DMAEitherEdge : DMA request on either edge(if the DMA requests exit).
- *        - #kPORT_FlagRisingEdge : Flag sets on rising edge(if the Flag states exit).
- *        - #kPORT_FlagFallingEdge : Flag sets on falling edge(if the Flag states exit).
- *        - #kPORT_FlagEitherEdge : Flag sets on either edge(if the Flag states exit).
- *        - #kPORT_InterruptLogicZero  : Interrupt when logic zero.
- *        - #kPORT_InterruptRisingEdge : Interrupt on rising edge.
- *        - #kPORT_InterruptFallingEdge: Interrupt on falling edge.
- *        - #kPORT_InterruptEitherEdge : Interrupt on either edge.
- *        - #kPORT_InterruptLogicOne   : Interrupt when logic one.
- *        - #kPORT_ActiveHighTriggerOutputEnable : Enable active high-trigger output (if the trigger states exit).
- *        - #kPORT_ActiveLowTriggerOutputEnable  : Enable active low-trigger output (if the trigger states exit)..
- */
-static inline void PORT_SetMultipleInterruptPinsConfig(PORT_Type *base, uint32_t mask, port_interrupt_t config)
-{
-    assert(config);
-
-    if (mask & 0xffffU)
-    {
-        base->GICLR = ((uint32_t)(config << 16)) | (mask & 0xffffU);
-    }
-    mask = mask >> 16;
-    if (0U != mask)
-    {
-        base->GICHR = ((uint32_t)(config << 16)) | (mask & 0xffffU);
-    }
-}
-#endif
-
 /*!
  * @brief Configures the pin muxing.
  *
@@ -462,36 +360,6 @@ static inline void PORT_SetPinDriveStrength(PORT_Type *base, uint32_t pin, uint8
 }
 #endif
 
-#if defined(FSL_FEATURE_PORT_HAS_DRIVE_STRENGTH1) && FSL_FEATURE_PORT_HAS_DRIVE_STRENGTH1
-/*!
- * @brief Enables the port pin double drive strength.
- *
- * @param base      PORT peripheral base pointer.
- * @param pin       PORT pin number.
- * @param enable  PORT pin drive strength configuration.
- */
-static inline void PORT_EnablePinDoubleDriveStrength(PORT_Type *base, uint32_t pin, bool enable)
-{
-    base->PCR[pin] = (base->PCR[pin] & ~PORT_PCR_DSE1_MASK) | PORT_PCR_DSE1(enable);
-}
-#endif
-
-#if defined(FSL_FEATURE_PORT_PCR_HAS_PULL_VALUE) && FSL_FEATURE_PORT_PCR_HAS_PULL_VALUE
-/*!
- * @brief Configures the port pin pull value.
- *
- * @param base      PORT peripheral base pointer.
- * @param pin       PORT pin number.
- * @param value  PORT pin pull value
- *        - #kPORT_LowPullResistor = 0U - Low internal pull resistor value is selected.
- *        - #kPORT_HighPullResistor = 1U - High internal pull resistor value is selected.
- */
-static inline void PORT_SetPinPullValue(PORT_Type *base, uint32_t pin, uint8_t value)
-{
-    base->PCR[pin] = (base->PCR[pin] & ~PORT_PCR_PV_MASK) | PORT_PCR_PV(value);
-}
-#endif /* FSL_FEATURE_PORT_PCR_HAS_PULL_VALUE */
-
 #if !(defined(FSL_FEATURE_PORT_HAS_NO_INTERRUPT) && FSL_FEATURE_PORT_HAS_NO_INTERRUPT)
 /*!
  * @brief Reads the whole port status flag.
@@ -524,10 +392,6 @@ static inline void PORT_ClearPinsInterruptFlags(PORT_Type *base, uint32_t mask)
 #endif
 
 /*@}*/
-
-#if defined(__cplusplus)
-}
-#endif
 
 /*! @}*/
 

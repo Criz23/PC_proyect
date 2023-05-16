@@ -24,21 +24,11 @@
 /*******************************************************************************
  ************************ BOARD_InitBootClocks function ************************
  ******************************************************************************/
-
-#if defined(__cplusplus)
-extern "C" {
-#endif /* __cplusplus*/
-
 /*!
  * @brief This function executes default configuration of clocks.
  *
  */
 void BOARD_InitBootClocks(void);
-
-#if defined(__cplusplus)
-}
-#endif /* __cplusplus*/
-
 /*******************************************************************************
  ********************* Configuration BOARD_BootClockHSRUN **********************
  ******************************************************************************/
@@ -60,19 +50,11 @@ extern const osc_config_t oscConfig_BOARD_BootClockHSRUN;
 /*******************************************************************************
  * API for BOARD_BootClockHSRUN configuration
  ******************************************************************************/
-#if defined(__cplusplus)
-extern "C" {
-#endif /* __cplusplus*/
-
 /*!
  * @brief This function executes configuration of clocks.
  *
  */
 void BOARD_BootClockHSRUN(void);
-
-#if defined(__cplusplus)
-}
-#endif /* __cplusplus*/
 
 /*******************************************************************************
  ********************* Configuration BOARD_BootClockVLPR ***********************
@@ -95,20 +77,11 @@ extern const osc_config_t oscConfig_BOARD_BootClockVLPR;
 /*******************************************************************************
  * API for BOARD_BootClockVLPR configuration
  ******************************************************************************/
-#if defined(__cplusplus)
-extern "C" {
-#endif /* __cplusplus*/
-
 /*!
  * @brief This function executes configuration of clocks.
  *
  */
 void BOARD_BootClockVLPR(void);
-
-#if defined(__cplusplus)
-}
-#endif /* __cplusplus*/
-
 /*******************************************************************************
  ********************** Configuration BOARD_BootClockRUN ***********************
  ******************************************************************************/
@@ -130,19 +103,10 @@ extern const osc_config_t oscConfig_BOARD_BootClockRUN;
 /*******************************************************************************
  * API for BOARD_BootClockRUN configuration
  ******************************************************************************/
-#if defined(__cplusplus)
-extern "C" {
-#endif /* __cplusplus*/
-
 /*!
  * @brief This function executes configuration of clocks.
  *
  */
 void BOARD_BootClockRUN(void);
-
-#if defined(__cplusplus)
-}
-#endif /* __cplusplus*/
-
 #endif /* _CLOCK_CONFIG_H_ */
 

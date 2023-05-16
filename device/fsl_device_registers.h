@@ -23,9 +23,6 @@
 #include "MK66F18.h"
 /* CPU specific feature definitions */
 #include "MK66F18_features.h"
-
-#else
-    #error "No valid CPU defined!"
 #endif
 
 #endif /* __FSL_DEVICE_REGISTERS_H__ */
