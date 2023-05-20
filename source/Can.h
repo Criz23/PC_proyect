@@ -2,6 +2,29 @@
 
 #include "fsl_common.h"
 
+#define FLEXCAN_ID_STD(id) \
+    (((uint32_t)(((uint32_t)(id)) << CAN_ID_STD_SHIFT)) & CAN_ID_STD_MASK) /*!< Standard Frame ID helper macro. */
+#define FLEXCAN_ID_EXT(id)                                \
+    (((uint32_t)(((uint32_t)(id)) << CAN_ID_EXT_SHIFT)) & \
+     (CAN_ID_EXT_MASK | CAN_ID_STD_MASK)) /*!< Extend Frame ID helper macro. */
+/*! @brief FlexCAN Rx Message Buffer Mask helper macro. */
+#define FLEXCAN_RX_MB_STD_MASK(id, rtr, ide)                                   \
+    (((uint32_t)((uint32_t)(rtr) << 31) | (uint32_t)((uint32_t)(ide) << 30)) | \
+     FLEXCAN_ID_STD(id)) /*!< Standard Rx Message Buffer Mask helper macro. */
+#define FLEXCAN_RX_MB_EXT_MASK(id, rtr, ide)                                   \
+    (((uint32_t)((uint32_t)(rtr) << 31) | (uint32_t)((uint32_t)(ide) << 30)) | \
+     FLEXCAN_ID_EXT(id)) /*!< Extend Rx Message Buffer Mask helper macro. */
+/*! @brief FlexCAN Legacy Rx FIFO Mask helper macro. */
+#define FLEXCAN_RX_FIFO_STD_MASK_TYPE_A(id, rtr, ide)                          \
+    (((uint32_t)((uint32_t)(rtr) << 31) | (uint32_t)((uint32_t)(ide) << 30)) | \
+     (FLEXCAN_ID_STD(id) << 1)) /*!< Standard Rx FIFO Mask helper macro Type A helper macro. */
+/*! @brief FlexCAN interrupt/status flag helper macro. */
+#define FLEXCAN_ERROR_AND_STATUS_INIT_FLAG                                                                          \
+    ((uint32_t)kFLEXCAN_TxWarningIntFlag | (uint32_t)kFLEXCAN_RxWarningIntFlag | (uint32_t)kFLEXCAN_BusOffIntFlag | \
+     (uint32_t)kFLEXCAN_ErrorIntFlag | FLEXCAN_MEMORY_ERROR_INIT_FLAG)
+#define FLEXCAN_WAKE_UP_FLAG ((uint32_t)kFLEXCAN_WakeUpIntFlag)
+#define FLEXCAN_MEMORY_ERROR_INIT_FLAG (0U)
+
 /*! @brief FlexCAN transfer status. */
 enum
 {
@@ -47,6 +70,32 @@ typedef enum _flexcan_clock_source
     kFLEXCAN_ClkSrc0    = 0x0U, /*!< FlexCAN Protocol Engine clock selected by user as SRC == 0. */
     kFLEXCAN_ClkSrc1    = 0x1U, /*!< FlexCAN Protocol Engine clock selected by user as SRC == 1. */
 } flexcan_clock_source_t;
+
+/*!
+ * @brief FlexCAN status flags.
+ *
+ * This provides constants for the FlexCAN status flags for use in the FlexCAN functions.
+ * @note The CPU read action clears the bits corresponding to the FlEXCAN_ErrorFlag macro, therefore user need to
+ * read status flags and distinguish which error is occur using @ref _flexcan_error_flags enumerations.
+ */
+enum _flexcan_flags
+{
+    kFLEXCAN_SynchFlag            = CAN_ESR1_SYNCH_MASK,   /*!< CAN Synchronization Status. */
+    kFLEXCAN_TxWarningIntFlag     = CAN_ESR1_TWRNINT_MASK, /*!< Tx Warning Interrupt Flag. */
+    kFLEXCAN_RxWarningIntFlag     = CAN_ESR1_RWRNINT_MASK, /*!< Rx Warning Interrupt Flag. */
+    kFLEXCAN_IdleFlag             = CAN_ESR1_IDLE_MASK,    /*!< FlexCAN In IDLE Status. */
+    kFLEXCAN_FaultConfinementFlag = CAN_ESR1_FLTCONF_MASK, /*!< FlexCAN Fault Confinement State. */
+    kFLEXCAN_TransmittingFlag     = CAN_ESR1_TX_MASK,      /*!< FlexCAN In Transmission Status. */
+    kFLEXCAN_ReceivingFlag        = CAN_ESR1_RX_MASK,      /*!< FlexCAN In Reception Status. */
+    kFLEXCAN_BusOffIntFlag        = CAN_ESR1_BOFFINT_MASK, /*!< Bus Off Interrupt Flag. */
+    kFLEXCAN_ErrorIntFlag         = CAN_ESR1_ERRINT_MASK,  /*!< CAN Error Interrupt Flag. */
+    kFLEXCAN_WakeUpIntFlag        = CAN_ESR1_WAKINT_MASK,  /*!< Self Wake-Up Interrupt Flag. */
+    kFLEXCAN_ErrorFlag =
+        (uint32_t)(/*!< All FlexCAN Read Clear Error Status. */
+                   CAN_ESR1_TXWRN_MASK | CAN_ESR1_RXWRN_MASK | CAN_ESR1_BIT1ERR_MASK | CAN_ESR1_BIT0ERR_MASK |
+                   CAN_ESR1_ACKERR_MASK | CAN_ESR1_CRCERR_MASK | CAN_ESR1_FRMERR_MASK | CAN_ESR1_STFERR_MASK),
+
+};
 
 /*! @brief FlexCAN wake up source. */
 typedef enum _flexcan_wake_up_source
@@ -263,6 +312,52 @@ struct _flexcan_handle
 };
 
 /*!
+ * @brief Initializes a FlexCAN instance.
+ *
+ * This function initializes the FlexCAN module with user-defined settings.
+ * This example shows how to set up the Can_ConfigType parameters and how
+ * to call the FLEXCAN_Init function by passing in these parameters.
+ *  @code
+ *   Can_ConfigType flexcanConfig;
+ *   flexcanConfig.clkSrc               = kFLEXCAN_ClkSrc0;
+ *   flexcanConfig.bitRate              = 1000000U;
+ *   flexcanConfig.maxMbNum             = 16;
+ *   flexcanConfig.enableLoopBack       = false;
+ *   flexcanConfig.enableSelfWakeup     = false;
+ *   flexcanConfig.enableIndividMask    = false;
+ *   flexcanConfig.enableDoze           = false;
+ *   flexcanConfig.disableSelfReception = false;
+ *   flexcanConfig.enableListenOnlyMode = false;
+ *   flexcanConfig.timingConfig         = timingConfig;
+ *   FLEXCAN_Init(CAN0, &flexcanConfig, 40000000UL);
+ *   @endcode
+ *
+ * @param base FlexCAN peripheral base address.
+ * @param pConfig Pointer to the user-defined configuration structure.
+ * @param sourceClock_Hz FlexCAN Protocol Engine clock source frequency in Hz.
+ */
+void FLEXCAN_Init(CAN_Type *base, const Can_ConfigType *pConfig, uint32_t sourceClock_Hz);
+
+/*!
+ * @brief Calculates the improved timing values by specific bit Rates for classical CAN.
+ *
+ * This function use to calculates the Classical CAN timing values according to the given bit rate. The Calculated
+ * timing values will be set in CTRL1/CBT/ENCBT register. The calculation is based on the recommendation of the CiA 301
+ * v4.2.0 and previous version document.
+ *
+ * @param base FlexCAN peripheral base address.
+ * @param bitRate  The classical CAN speed in bps defined by user, should be less than or equal to 1Mbps.
+ * @param sourceClock_Hz The Source clock frequency in Hz.
+ * @param pTimingConfig Pointer to the FlexCAN timing configuration structure.
+ *
+ * @return TRUE if timing configuration found, FALSE if failed to find configuration.
+ */
+bool FLEXCAN_CalculateImprovedTimingValues(CAN_Type *base,
+                                           uint32_t bitRate,
+                                           uint32_t sourceClock_Hz,
+                                           flexcan_timing_config_t *pTimingConfig);
+
+/*!
  * @brief Gets the default configuration structure.
  *
  * This function initializes the FlexCAN configuration structure to default values. The default
@@ -300,6 +395,50 @@ void FLEXCAN_SetTimingConfig(CAN_Type *base, const flexcan_timing_config_t *pCon
 static inline uint32_t FLEXCAN_GetStatusFlags(CAN_Type *base)
 {
     return base->ESR1;
+}
+
+/*!
+ * @brief Configures a FlexCAN transmit message buffer.
+ *
+ * This function aborts the previous transmission, cleans the Message Buffer, and
+ * configures it as a Transmit Message Buffer.
+ *
+ * @param base FlexCAN peripheral base address.
+ * @param mbIdx The Message Buffer index.
+ * @param enable Enable/disable Tx Message Buffer.
+ *               - true: Enable Tx Message Buffer.
+ *               - false: Disable Tx Message Buffer.
+ */
+void FLEXCAN_SetTxMbConfig(CAN_Type *base, uint8_t mbIdx, bool enable);
+
+/*!
+ * @brief Configures a FlexCAN Receive Message Buffer.
+ *
+ * This function cleans a FlexCAN build-in Message Buffer and configures it
+ * as a Receive Message Buffer.
+ *
+ * @param base FlexCAN peripheral base address.
+ * @param mbIdx The Message Buffer index.
+ * @param pRxMbConfig Pointer to the FlexCAN Message Buffer configuration structure.
+ * @param enable Enable/disable Rx Message Buffer.
+ *               - true: Enable Rx Message Buffer.
+ *               - false: Disable Rx Message Buffer.
+ */
+void FLEXCAN_SetRxMbConfig(CAN_Type *base, uint8_t mbIdx, const flexcan_rx_mb_config_t *pRxMbConfig, bool enable);
+
+/*!
+ * @brief Clears status flags with the provided mask.
+ *
+ * This function clears the FlexCAN status flags with a provided mask. An automatically cleared flag
+ * can't be cleared by this function.
+ *
+ * @param base FlexCAN peripheral base address.
+ * @param mask The status flags to be cleared, it is logical OR value of @ref _flexcan_flags.
+ */
+static inline void FLEXCAN_ClearStatusFlags(CAN_Type *base, uint32_t mask)
+{
+    /* Write 1 to clear status flag. */
+    base->ESR1 = mask;
 }
 
 /*!
@@ -423,5 +562,18 @@ static inline void FLEXCAN_Enable(CAN_Type *base, bool enable)
 }
 
 status_t FLEXCAN_ReadRxMb(CAN_Type *base, uint8_t mbIdx, flexcan_frame_t *pRxFrame);
+
+/*!
+ * @brief Performs a polling send transaction on the CAN bus.
+ *
+ * @note  A transfer handle does not need to be created  before calling this API.
+ *
+ * @param base FlexCAN peripheral base pointer.
+ * @param mbIdx The FlexCAN Message Buffer index.
+ * @param pTxFrame Pointer to CAN message frame to be sent.
+ * @retval kStatus_Success - Write Tx Message Buffer Successfully.
+ * @retval kStatus_Fail    - Tx Message Buffer is currently in use.
+ */
+status_t FLEXCAN_TransferSendBlocking(CAN_Type *base, uint8_t mbIdx, flexcan_frame_t *pTxFrame);
 
 void FLEXCAN_TransferHandleIRQ(CAN_Type *base, flexcan_handle_t *handle);

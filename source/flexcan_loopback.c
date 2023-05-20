@@ -84,17 +84,12 @@ int main(void)
      * flexcanConfig.enableListenOnlyMode   = false;
      * flexcanConfig.enableDoze             = false;
      */
-    FLEXCAN_GetDefaultConfig(&flexcanConfig);
-
-#if defined(EXAMPLE_CAN_CLK_SOURCE)
+    //FLEXCAN_GetDefaultConfig(&flexcanConfig);
     flexcanConfig.clkSrc = EXAMPLE_CAN_CLK_SOURCE;
-#endif
-
     flexcanConfig.enableLoopBack = true;
-
-#if (defined(USE_IMPROVED_TIMING_CONFIG) && USE_IMPROVED_TIMING_CONFIG)
     flexcan_timing_config_t timing_config;
     memset(&timing_config, 0, sizeof(flexcan_timing_config_t));
+
     if (FLEXCAN_CalculateImprovedTimingValues(EXAMPLE_CAN, flexcanConfig.baudRate, EXAMPLE_CAN_CLK_FREQ,
                                               &timing_config))
     {
@@ -105,7 +100,6 @@ int main(void)
     {
         LOG_INFO("No found Improved Timing Configuration. Just used default configuration\r\n\r\n");
     }
-#endif
 
     FLEXCAN_Init(EXAMPLE_CAN, &flexcanConfig, EXAMPLE_CAN_CLK_FREQ);
 

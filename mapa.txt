@@ -1,3 +1,7 @@
+/* Can.h */
+
+31-48 FLEXCAN_ID_STD
+131 FLEXCAN_ERROR_AND_STATUS_INIT_FLAG
 155 enum
 162 flexcan_frame_format_t
 169 flexcan_frame_type_t
@@ -6,6 +10,7 @@
 199 flexcan_rx_fifo_filter_type_t
 212 flexcan_rx_fifo_priority_t
 228 kFLEXCAN_WakeUpInterruptEnable
+254 enum _flexcan_flags
 288 kFLEXCAN_RxFifoFrameAvlFlag
 327 flexcan_frame_t
 338 flexcan_timing_config_t
@@ -17,9 +22,14 @@
 412 _flexcan_handle flexcan_handle_t
 427 CAN_Type
 439 _flexcan_handle
+491 FLEXCAN_CalculateImprovedTimingValues
+521 FLEXCAN_Init
 555 FLEXCAN_GetDefaultConfig
 577 FLEXCAN_SetTimingConfig
 609 FLEXCAN_GetStatusFlags
+628 FLEXCAN_SetTxMbConfig
+643 FLEXCAN_SetRxMbConfig
+694 FLEXCAN_ClearStatusFlags
 730 FLEXCAN_GetMbStatusFlags
 744 FLEXCAN_ClearMbStatusFlags
 771 FLEXCAN_EnableInterrupts
@@ -28,4 +38,31 @@
 819 FLEXCAN_DisableMbInterrupts
 856 FLEXCAN_Enable
 888 FLEXCAN_ReadRxMb
+919 FLEXCAN_TransferSendBlocking
 1069 FLEXCAN_TransferHandleIRQ
+
+/* Can.c */
+34 MAX_PROPSEG
+35 MAX_PSEG1
+36 MAX_PSEG2
+37 MAX_RJW
+38 MAX_PRESDIV
+39 CTRL1_MAX_TIME_QUANTA
+40 CTRL1_MIN_TIME_QUANTA
+82 MAX_CAN_BITRATE
+112 enum
+142 FLEXCAN_IsMbOccupied
+180 FLEXCAN_SetBitRate
+194 FLEXCAN_GetSegments
+220 s_flexcanBases
+235 s_flexcanClock
+251 FLEXCAN_GetInstance
+315 FLEXCAN_IsMbOccupied
+372 FLEXCAN_Reset
+409 FLEXCAN_Inits
+434 FLEXCAN_SetBitRate
+625 FLEXCAN_GetDefaultConfig
+660 FLEXCAN_SetTimingConfig
+806 FLEXCAN_GetSegments
+900 FLEXCAN_CalculateImprovedTimingValues
+1210 FLEXCAN_ReadRxMb
