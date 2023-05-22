@@ -17,6 +17,8 @@
 #define FSL_COMPONENT_ID "platform.drivers.clock"
 #endif
 
+#define EXAMPLE_CAN_CLK_FREQ   CLOCK_GetFreq(kCLOCK_BusClk)
+
 /* PLL fixed multiplier when there is not PRDIV and VDIV. */
 #define PLL_FIXED_MULT (375U)
 /* Max frequency of the reference clock used for internal clock trim. */

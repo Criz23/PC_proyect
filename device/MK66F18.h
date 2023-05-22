@@ -36303,6 +36303,9 @@ typedef struct {
 #define LLW_IRQn                                 LLWU_IRQn
 #define LLW_IRQHandler                           LLWU_IRQHandler
 
+#define E_OK                                     (0x00U)    /* Operación ejecutada con éxito */
+#define E_NOT_OK                                 (0x01U) 
+
 /*!
  * @}
  */ /* end of group SDK_Compatibility_Symbols */
