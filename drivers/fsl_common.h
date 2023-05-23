@@ -212,9 +212,8 @@ enum
 
 /*! @brief Type used for all status and error return values. */
 typedef int32_t Std_ReturnType;
+typedef uint8_t Can_HwHandleType;
 typedef int32_t status_t;
-
-//typedef uint8_t Std_ReturnType;
 
 /*!
  * @name Min/max macros
